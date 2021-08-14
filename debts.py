@@ -26,9 +26,12 @@ class Debts:
         if payer and amount and sharers:
             return RecordInfo(payer, amount, sharers)
 
-    def push(self, _json: dict):
-        """ Add record to database """
-        pass
+    def push(self, _json: dict, forced=False) -> bool:
+        """ Add record to database. Forced adding can duplicate documents in database """
+        if not forced and (self.__collection.count_documents(_json) > 0):
+            return False
+        self.__collection.insert(_json)
+        return True
 
     def get(self, _id):     # signature can differ
         """ Get record from database """
@@ -60,6 +63,9 @@ class Debts:
             personal_expenses[name] = mutual_debts.loc[name, :].sum()
 
         # mutual settlements
+        for name in mutual_debts.index:
+            if name not in mutual_debts.columns:
+                mutual_debts[name] = 0
         mutual_debts = mutual_debts - mutual_debts.T
         mutual_debts[mutual_debts <= 0] = pd.NA
         mutual_debts.dropna(axis=0, how='all', inplace=True)
