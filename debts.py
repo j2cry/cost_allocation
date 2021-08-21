@@ -33,6 +33,9 @@ class Debts:
         self.__collection.insert(_json)
         return True
 
+    def clear(self):
+        self.__collection.delete_many({})
+
     def get(self, _id):     # signature can differ
         """ Get record from database """
         pass
