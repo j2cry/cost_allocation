@@ -1,3 +1,5 @@
+from unittest.mock import _patch_dict
+
 import settings
 import pandas as pd
 from pymongo import MongoClient
@@ -38,7 +40,7 @@ class Debts:
         """ Delete all records in database collection """
         self.__collection.delete_many({})
 
-    def get_expenses(self, sharer: str):
+    def get_expenses(self, sharer: str) -> pd.DataFrame:
         """ Get personal expenses aggregated by categories, calculate sum and return as pandas.DataFrame """
         # expenses = pd.DataFrame()
         expenses = defaultdict(float)
@@ -50,6 +52,18 @@ class Debts:
             categories.add(record.category)
         expenses = pd.DataFrame(expenses, index=[sharer]).T
         return expenses.append(pd.Series(expenses.sum(axis=0), name='ИТОГО'))
+
+    def get_payments(self, payer: str) -> pd.DataFrame:
+        """ Get all payments for `payer` aggregated by categories, calculate sum and return as pandas.DataFrame """
+        payments = defaultdict(float)
+        records = self.__collection.find({'payer': payer}, {'_id': 0})
+        categories = set()
+        for record in records:
+            record = self.__parse_record(record)
+            payments[record.category if record.category else '---'] += record.amount
+            categories.add(record.category)
+        payments = pd.DataFrame(payments, index=[payer]).T
+        return payments.append(pd.Series(payments.sum(axis=0), name='ИТОГО'))
 
     def get_all(self):
         for rec in self.__collection.find():

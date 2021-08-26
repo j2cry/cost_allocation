@@ -84,4 +84,7 @@ if __name__ == '__main__':
     ex = travel.get_expenses('Катя')
     print('personal expenses', ex, '', sep='\n')
 
+    pay = travel.get_payments('Петя')
+    print('personal payments', pay, '', sep='\n')
+
     # travel.get_all()
