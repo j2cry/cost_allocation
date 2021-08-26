@@ -1,10 +1,10 @@
 import settings
 import pandas as pd
 from pymongo import MongoClient
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from typing import Tuple
 
-RecordInfo = namedtuple('RecordInfo', 'payer amount sharers')
+RecordInfo = namedtuple('RecordInfo', 'payer amount sharers category')
 
 
 class Debts:
@@ -23,8 +23,9 @@ class Debts:
         payer = _json.get('payer', None)
         amount = _json.get('amount', None)
         sharers = _json.get('sharers', None)
+        category = _json.get('category', None)
         if payer and amount and sharers:
-            return RecordInfo(payer, amount, sharers)
+            return RecordInfo(payer, amount, sharers, category)
 
     def push(self, _json: dict, forced=False) -> bool:
         """ Add record to database. Forced adding can duplicate documents in database """
@@ -34,16 +35,28 @@ class Debts:
         return True
 
     def clear(self):
+        """ Delete all records in database collection """
         self.__collection.delete_many({})
 
-    def get(self, _id):     # signature can differ
-        """ Get record from database """
-        pass
+    def get_expenses(self, sharer: str):
+        """ Get personal expenses aggregated by categories, calculate sum and return as pandas.DataFrame """
+        # expenses = pd.DataFrame()
+        expenses = defaultdict(float)
+        records = self.__collection.find({'sharers': sharer}, {'_id': 0})
+        categories = set()
+        for record in records:
+            record = self.__parse_record(record)
+            expenses[record.category if record.category else '---'] += record.amount / len(record.sharers)
+            categories.add(record.category)
+        expenses = pd.DataFrame(expenses, index=[sharer]).T
+        return expenses.append(pd.Series(expenses.sum(axis=0), name='ИТОГО'))
 
-    def calculate(self) -> Tuple[pd.Series, pd.DataFrame]:
-        """ Calculate mutual debts.
-            Returns personal expenses as pandas.Series and mutual debts as pandas.DataFrame
-        """
+    def get_all(self):
+        for rec in self.__collection.find():
+            print(rec)
+
+    def get_debts(self) -> pd.DataFrame:
+        """ Calculate mutual debts. Returns mutual debts as pandas.DataFrame """
         mutual_debts = pd.DataFrame()
         for record in self.__collection.find():       # iterate through collection
             record = self.__parse_record(record)
@@ -61,9 +74,9 @@ class Debts:
         mutual_debts.fillna(0, inplace=True)
 
         # calc personal expenses including debts
-        personal_expenses = pd.Series(dtype='float64')
-        for name in mutual_debts.index:
-            personal_expenses[name] = mutual_debts.loc[name, :].sum()
+        # personal_expenses = pd.Series(dtype='float64')
+        # for name in mutual_debts.index:
+        #     personal_expenses[name] = mutual_debts.loc[name, :].sum()
 
         # mutual settlements
         for name in mutual_debts.index:
@@ -75,4 +88,5 @@ class Debts:
         mutual_debts.dropna(axis=1, how='all', inplace=True)
         mutual_debts.fillna(0, inplace=True)
 
-        return personal_expenses, mutual_debts
+        # return personal_expenses, mutual_debts
+        return mutual_debts
