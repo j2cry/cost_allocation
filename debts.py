@@ -1,10 +1,7 @@
-from unittest.mock import _patch_dict
-
 import settings
 import pandas as pd
 from pymongo import MongoClient
 from collections import namedtuple, defaultdict
-from typing import Tuple
 
 RecordInfo = namedtuple('RecordInfo', 'payer amount sharers category')
 
@@ -23,7 +20,10 @@ class Debts:
     def __parse_record(_json: dict):
         """ Parse database record to RecordInfo """
         payer = _json.get('payer', None)
-        amount = _json.get('amount', None)
+        try:
+            amount = float(_json.get('amount', 0))
+        except ValueError:
+            amount = 0
         sharers = _json.get('sharers', None)
         category = _json.get('category', None)
         if payer and amount and sharers:
@@ -86,11 +86,6 @@ class Debts:
                     temp_value = 0
                 mutual_debts.loc[sharer, record.payer] = temp_value + record.amount / len(record.sharers)
         mutual_debts.fillna(0, inplace=True)
-
-        # calc personal expenses including debts
-        # personal_expenses = pd.Series(dtype='float64')
-        # for name in mutual_debts.index:
-        #     personal_expenses[name] = mutual_debts.loc[name, :].sum()
 
         # mutual settlements
         for name in mutual_debts.index:
