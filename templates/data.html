@@ -3,21 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <title>Cost allocation service</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/style.css')}}">
 
 </head>
 <body>
-    <form action="/{{collection}}" method="post">
-        Payer:
-        <input type="text" name="payer"><br>
-        Amount:
-        <input type="text" name="amount"><br>
-        Category:
-        <input type="text" name="category"><br>
-        Sharers:
-        <input type="text" name="sharers"><br>
+    <div class="add_container">
+        <form action="/{{collection}}" method="post">
+            <table>
+                <tr>
+                    <td>Payer:</td>
+                    <td><input type="text" name="payer"></td>
+                </tr>
+                <tr>
+                    <td>Amount:</td>
+                    <td><input type="text" name="amount"></td>
+                </tr>
+                <tr>
+                    <td>Category:</td>
+                    <td><input type="text" name="category"></td>
+                </tr>
+                <tr>
+                    <td>Sharers:</td>
+                    <td>
+                        <input type="text" name="sharers">
+                        <span class="note">use `space` as delimiter</span>
+                    </td>
+                </tr>
+            </table>
 
-        <button type="submit" id="push_btn">Add record</button>
-        <button type="submit" formaction="/{{collection}}/result" id="calc_btn">Calculate</button>
-    </form>
+            <button type="submit" id="push_btn">Add record</button>
+            <button type="submit" formaction="/{{collection}}/result" id="calc_btn">Calculate</button>
+        </form>
+    </div>
+    <hr>
+    <div class="remove_container">
+        <form action="/{{collection}}/remove">
+            Remove record with id:
+            <input type="text" name="_id">
+            <button type="submit" >remove</button>
+        </form>
+
+        <table class="records_table">
+            <tr class="table_header">
+               <td>id</td>
+               <td>payer</td>
+               <td>amount</td>
+               <td>category</td>
+               <td>sharers</td>
+            </tr>
+            {% for rec in records %}
+            <tr>
+                <td>{{rec.get('_id', '')}}</td>
+                <td>{{rec.get('payer', '')}}</td>
+                <td>{{rec.get('amount', '')}}</td>
+                <td>{{rec.get('category', '')}}</td>
+                <td>{{', '.join(rec.get('sharers', ''))}}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
 </body>
 </html>

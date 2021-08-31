@@ -1,0 +1,24 @@
+body {
+    font-size: 20px;
+}
+
+.note {
+    font-size: 14px;
+}
+
+
+.remove_container form {
+    margin-bottom: 10px;
+}
+
+.records_table {
+    border-collapse: collapse;
+}
+.records_table td {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: center;
+}
+.table_header {
+    font-weight: 600;
+}

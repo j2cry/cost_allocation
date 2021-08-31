@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from debts import Debts
 
 app = Flask(__name__)
@@ -14,17 +14,23 @@ def debts_service(collection):
         record['sharers'] = record.get('sharers').split()
         debts.push(record)
 
-    # TODO: html template for records output
-    # TODO: feature for records deleting
-    return render_template('data.html', collection=collection)
+    debts = Debts(collection=collection)
+    return render_template('data.html', collection=collection, records=debts.get_all())
 
 
 @app.route('/<collection>/result', methods=['POST'])
 def debts_result(collection):
     debts = Debts(collection=collection)
-    print(debts.get_debts())
     # TODO: html template for result output
     return str(debts.get_debts())
+
+
+@app.route('/<collection>/remove')
+def debts_remove_item(collection):
+    debts = Debts(collection=collection)
+    if _id := request.args.get('_id', None):
+        debts.remove(_id)
+    return redirect(f'/{collection}')
 
 
 # ------------- DEBUG ----------------
@@ -33,13 +39,6 @@ def debts_clear(collection):
     debts = Debts(collection=collection)
     debts.clear()
     return 'DEBUG: Database cleared'
-
-
-@app.route('/<collection>/all')
-def debts_all(collection):
-    debts = Debts(collection=collection)
-    debts.get_all()
-    return 'DEBUG: get all records'
 
 
 if __name__ == '__main__':

@@ -1,7 +1,9 @@
+import bson.errors
 import settings
 import pandas as pd
 from pymongo import MongoClient
 from collections import namedtuple, defaultdict
+from bson import ObjectId
 
 RecordInfo = namedtuple('RecordInfo', 'payer amount sharers category')
 
@@ -36,6 +38,13 @@ class Debts:
         self.__collection.insert(_json)
         return True
 
+    def remove(self, _id):
+        """ Remove record with _id from database """
+        try:
+            self.__collection.delete_one({'_id': ObjectId(_id)})
+        except bson.errors.InvalidId:
+            pass
+
     def clear(self):
         """ Delete all records in database collection """
         self.__collection.delete_many({})
@@ -66,8 +75,8 @@ class Debts:
         return payments.append(pd.Series(payments.sum(axis=0), name='ИТОГО'))
 
     def get_all(self):
-        for rec in self.__collection.find():
-            print(rec)
+        """ Return list with all records from database """
+        return list(self.__collection.find())
 
     def get_debts(self) -> pd.DataFrame:
         """ Calculate mutual debts. Returns mutual debts as pandas.DataFrame """
