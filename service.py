@@ -5,6 +5,13 @@ from debts import Debts
 app = Flask(__name__)
 
 
+@app.route('/', methods=['GET', 'POST'])
+def debts_index():
+    if collection := request.form.get('collection', ''):
+        return redirect(f'/{collection}')
+    return render_template('index.html')
+
+
 @app.route('/<collection>', methods=['POST', 'GET'])
 def debts_service(collection):
     """ Show HTML interface
