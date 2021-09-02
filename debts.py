@@ -49,8 +49,8 @@ class Debts:
         """ Delete all records in database collection """
         self.__collection.delete_many({})
 
-    def get_expenses(self, sharer: str) -> pd.DataFrame:
-        """ Get personal expenses aggregated by categories, calculate sum and return as pandas.DataFrame """
+    def get_expenses(self, sharer: str) -> pd.Series:
+        """ Get personal expenses aggregated by categories, calculate sum and return as pandas.Series """
         # expenses = pd.DataFrame()
         expenses = defaultdict(float)
         records = self.__collection.find({'sharers': sharer}, {'_id': 0})
@@ -59,11 +59,11 @@ class Debts:
             record = self.__parse_record(record)
             expenses[record.category if record.category else '---'] += record.amount / len(record.sharers)
             categories.add(record.category)
-        expenses = pd.DataFrame(expenses, index=[sharer]).T
-        return expenses.append(pd.Series(expenses.sum(axis=0), name='ИТОГО'))
+        expenses = pd.Series(expenses, name=sharer)
+        return round(expenses.append(pd.Series(expenses.sum(axis=0), index=['ИТОГО'], name=sharer)), 2)
 
-    def get_payments(self, payer: str) -> pd.DataFrame:
-        """ Get all payments for `payer` aggregated by categories, calculate sum and return as pandas.DataFrame """
+    def get_payments(self, payer: str) -> pd.Series:
+        """ Get all payments for `payer` aggregated by categories, calculate sum and return as pandas.Series """
         payments = defaultdict(float)
         records = self.__collection.find({'payer': payer}, {'_id': 0})
         categories = set()
@@ -71,8 +71,8 @@ class Debts:
             record = self.__parse_record(record)
             payments[record.category if record.category else '---'] += record.amount
             categories.add(record.category)
-        payments = pd.DataFrame(payments, index=[payer]).T
-        return payments.append(pd.Series(payments.sum(axis=0), name='ИТОГО'))
+        payments = pd.Series(payments, name=payer)
+        return round(payments.append(pd.Series(payments.sum(axis=0), index=['ИТОГО'], name=payer)), 2)
 
     def get_all(self):
         """ Return list with all records from database """

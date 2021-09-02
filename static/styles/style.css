@@ -11,14 +11,24 @@ body {
     margin-bottom: 10px;
 }
 
-.records_table {
+.table {
     border-collapse: collapse;
 }
-.records_table td {
+.table td {
     border: 1px solid black;
     padding: 5px;
     text-align: center;
 }
 .table_header {
     font-weight: 600;
+}
+
+.statistics {
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.statistics div {
+    margin-right: 20px;
+    display: inline-block;
 }

@@ -34,13 +34,21 @@ def debts_remove_item(collection):
     return redirect(f'/{collection}')
 
 
-@app.route('/<collection>/result', methods=['POST'])
+@app.route('/<collection>/result', methods=['GET', 'POST'])
 def debts_result(collection):
     """ Show result
         :param collection: mongo database collection name """
     debts = Debts(collection=collection)
-    # TODO: html template for result output
-    return render_template('result.html', collection=collection, _debts=debts.get_debts())
+    payments, expenses = None, None
+    if person := request.args.get('person', ''):
+        payments = debts.get_payments(person)
+        expenses = debts.get_expenses(person)
+        print(payments, expenses, sep='\n\n')
+    kwargs = {'collection': collection,
+              '_debts': debts.get_debts(),
+              'payments': payments,
+              'expenses': expenses}
+    return render_template('result.html', **kwargs)
 
 
 # ------------- DEBUG ----------------

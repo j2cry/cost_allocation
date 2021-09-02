@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Cost allocation service</title>
     <link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/style.css')}}">
-
 </head>
 <body>
     <div class="add_container">
@@ -31,8 +30,8 @@
                 </tr>
             </table>
 
-            <button type="submit" id="push_btn">Add record</button>
-            <button type="submit" formaction="/{{collection}}/result" id="calc_btn">Calculate</button>
+            <button type="submit">Add record</button>
+            <button type="submit" formaction="/{{collection}}/result">Calculate</button>
         </form>
     </div>
     <hr>
@@ -43,7 +42,7 @@
             <button type="submit" >remove</button>
         </form>
 
-        <table class="records_table">
+        <table class="table">
             <tr class="table_header">
                <td>id</td>
                <td>payer</td>
