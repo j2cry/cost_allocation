@@ -23,7 +23,7 @@ class Debts:
         """ Parse database record to RecordInfo """
         payer = _json.get('payer', None)
         try:
-            amount = float(_json.get('amount', 0))
+            amount = float(str(_json.get('amount', '')).replace(',', '.'))
         except ValueError:
             amount = 0
         sharers = _json.get('sharers', None)
@@ -106,5 +106,4 @@ class Debts:
         mutual_debts.dropna(axis=1, how='all', inplace=True)
         mutual_debts.fillna(0, inplace=True)
 
-        # return personal_expenses, mutual_debts
-        return mutual_debts
+        return round(mutual_debts, 2)

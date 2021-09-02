@@ -27,3 +27,17 @@ II. В одном docker-контейнере
     1. Раскомментировать блок кода в dockerfile
     2. В каталоге проекта выполнить команду `docker build -t cost_service .`
     3. Запустить контейнер c помощью команды `docker run -dp 80:8080 cost_service`
+
+
+
+# local commands
+sudo docker build -t cost_image .
+sudo docker save -o ~/cost.tar cost_image
+sudo scp /home/avagadro/cost.tar root@194.58.119.214:/usr/files
+
+# server command
+docker load -i /usr/files/cost.tar
+docker run --name mongodata -d mongo
+docker run --name cost_service -dp 80:8080 cost_image
+
+# don't forget to setup the Mongo IP in settings.py!

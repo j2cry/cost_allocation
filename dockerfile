@@ -3,12 +3,14 @@
 # Run container with command
 #   docker run -dp 80:8080 cost_service
 
+# Попробовать переписать это на основе контейнера python3 - контейнера вроде полегче, чем убунта
+
 FROM ubuntu:latest
 MAINTAINER avagadro 'p-avagadro@yandex.com'
 
 # install python3
 RUN apt-get update -y
-RUN apt-get install -y python3-pip python3-dev build-essential vim gnupg wget
+RUN apt-get install -y python3-pip python3-dev build-essential vim
 
 # prepare environment: copy files, install requirements
 COPY *.py /webservice/
@@ -26,6 +28,8 @@ ENTRYPOINT ["python3", "service.py"]
 # # Please note that this is highly undesirable, since you will have to update the application manually.
 # # Otherwise, you the data stored in mongodb may be lost.
 
+# RUN apt-get install -y gnupg wget
+
 # # Import MongoDB public GPG key AND create a MongoDB list file
 # RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 # RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
@@ -38,6 +42,6 @@ ENTRYPOINT ["python3", "service.py"]
 # RUN mkdir -p /data/code
 #
 # # set entrypoint
-# COPY start.sh /webservice/
+# COPY start_in_one.sh /webservice/
 # RUN chmod +x start.sh
 # ENTRYPOINT ["./start.sh"]

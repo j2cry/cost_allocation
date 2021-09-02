@@ -57,7 +57,8 @@ def debts_result(collection):
               'expenses': expenses}
     return render_template('result.html', **kwargs)
 
-
+# TODO: add home link to each page -> make some design
+# TODO: try to make dockerfile smaller size
 # ------------- DEBUG ----------------
 # @app.route('/<collection>/clear')
 # def debts_clear(collection):
