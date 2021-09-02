@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="add_container">
-        <form action="/{{collection}}/add" method="post">
+        <form action="{{path}}/add" method="post">
             <table>
                 <tr>
                     <td>Payer:</td>
@@ -31,12 +31,12 @@
             </table>
 
             <button type="submit">Add record</button>
-            <button type="submit" formaction="/{{collection}}/result">Calculate</button>
+            <button type="submit" formaction="{{path}}/result">Calculate</button>
         </form>
     </div>
     <hr>
     <div class="remove_container">
-        <form action="/{{collection}}/remove">
+        <form action="{{path}}/remove">
             Remove record with id:
             <input type="text" name="_id">
             <button type="submit" >remove</button>
