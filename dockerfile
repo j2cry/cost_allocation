@@ -1,16 +1,12 @@
 # Build image with command
-#   docker build -t cost_service .
+#   docker build -t cost_image .
 # Run container with command
-#   docker run -dp 80:8080 cost_service
+#   docker run -dp 80:8080 cost_image
 
-# Попробовать переписать это на основе контейнера python3 - контейнера вроде полегче, чем убунта
-
-FROM ubuntu:latest
+FROM python:3.8-slim
 MAINTAINER avagadro 'p-avagadro@yandex.com'
 
-# install python3
-RUN apt-get update -y
-RUN apt-get install -y python3-pip python3-dev build-essential vim
+RUN apt-get update && apt-get install -y gcc vim
 
 # prepare environment: copy files, install requirements
 COPY *.py /webservice/
@@ -24,9 +20,28 @@ RUN pip3 install -r requirements.txt
 
 ENTRYPOINT ["python3", "service.py"]
 
-# # To build MongoDB and flask app in one container uncomment the code below
+
+# # To build MongoDB and flask app in one container use the code below
 # # Please note that this is highly undesirable, since you will have to update the application manually.
 # # Otherwise, you the data stored in mongodb may be lost.
+
+# FROM ubuntu:latest
+# MAINTAINER avagadro 'p-avagadro@yandex.com'
+#
+# # install python3
+# RUN apt-get update -y
+# RUN apt-get install -y python3-pip python3-dev build-essential vim
+#
+# # prepare environment: copy files, install requirements
+# COPY *.py /webservice/
+# COPY requirements.txt /webservice/
+# COPY static/ /webservice/static/
+# COPY templates/* /webservice/templates/
+# RUN mkdir /webservice/volume
+# VOLUME /webservice/volume
+# WORKDIR /webservice
+# RUN pip3 install -r requirements.txt
+
 
 # RUN apt-get install -y gnupg wget
 

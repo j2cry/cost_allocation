@@ -8,7 +8,7 @@ I. In two docker containers
     4. Launch the container using the command `docker run -dp 80:8080 cost_service`
 
 II. In a single docker container
-    1. Uncomment the code block in the dockerfile
+    1. Uncomment the required code block in the dockerfile
     2. In the project directory, run the `docker build -t cost_service .` command
     3. Launch the container using the command `docker run -dp 80:8080 cost_service`
 
@@ -24,7 +24,7 @@ I. В двух docker-контейнерах
     4. Запустить контейнер c помощью команды `docker run -dp 80:8080 cost_service`
 
 II. В одном docker-контейнере
-    1. Раскомментировать блок кода в dockerfile
+    1. Раскомментировать необходимый блок кода в dockerfile
     2. В каталоге проекта выполнить команду `docker build -t cost_service .`
     3. Запустить контейнер c помощью команды `docker run -dp 80:8080 cost_service`
 
