@@ -10,7 +10,9 @@ app = Flask(__name__)
 def debts_index():
     if collection := request.form.get('collection', ''):
         return redirect(f'{SERVICE_PATH}/{collection}')
-    return render_template('index.html')
+    params = {'home': SERVICE_PATH,
+              'collection': collection}
+    return render_template('base.html', page='index.html', **params)
 
 
 @app.route(f'{SERVICE_PATH}/<collection>', methods=['POST', 'GET'])
@@ -18,7 +20,10 @@ def debts_service(collection):
     """ Show HTML interface
         :param collection: mongo database collection name """
     debts = Debts(collection=collection)
-    return render_template('data.html', path=f'{SERVICE_PATH}/{collection}', records=debts.get_all())
+    params = {'home': SERVICE_PATH,
+              'collection': collection,
+              'records': enumerate(debts.get_all(), 1)}
+    return render_template('base.html', page='data.html', **params)
 
 
 @app.route(f'{SERVICE_PATH}/<collection>/add', methods=['POST'])
@@ -51,14 +56,21 @@ def debts_result(collection):
     if person := request.args.get('person', ''):
         payments = debts.get_payments(person)
         expenses = debts.get_expenses(person)
-    kwargs = {'collection': collection,
+    params = {'home': SERVICE_PATH,
+              'collection': collection,
               '_debts': debts.get_debts(),
+              'person': person,
               'payments': payments,
               'expenses': expenses}
-    return render_template('result.html', **kwargs)
+    return render_template('base.html', page='result.html', **params)
 
-# TODO: add home link to each page -> make some design
-# TODO: try to make dockerfile smaller size
+
+@app.route(f'{SERVICE_PATH}/about')
+def debts_about():
+
+    params = {'home': SERVICE_PATH}
+    return render_template('base.html', page='credits.html', **params)
+
 # ------------- DEBUG ----------------
 # @app.route('/<collection>/clear')
 # def debts_clear(collection):

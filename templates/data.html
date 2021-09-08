@@ -1,70 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Cost allocation service</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/style.css')}}">
-</head>
-<body>
-    <div class="add_container">
-        <form action="{{path}}/add" method="post">
-            <table>
-                <tr>
-                    <td>Payer:</td>
-                    <td><input type="text" name="payer"></td>
-                </tr>
-                <tr>
-                    <td>Amount:</td>
-                    <td>
-                        <input type="text" name="amount">
-                        <span class="note">use `.` or `,` as decimal delimiter</span>
-                    </td>
+<div class="container row">
+    <div>
+        <form action="{{home}}/{{collection}}/add" method="post">
+            <div class="input-group mt-2 mb-2">
+                <span class="input-group-text">Payer</span>
+                <input name="payer" type="text" class="form-control" placeholder="name" aria-label="payer">
+            </div>
 
-                </tr>
-                <tr>
-                    <td>Category:</td>
-                    <td><input type="text" name="category"></td>
-                </tr>
-                <tr>
-                    <td>Sharers:</td>
-                    <td>
-                        <input type="text" name="sharers">
-                        <span class="note">use `space` as delimiter</span>
-                    </td>
-                </tr>
-            </table>
+            <div class="input-group	mb-2">
+                <span class="input-group-text">Amount</span>
+                <input name="amount" type="text" class="form-control" placeholder="use `.` as delimiter" aria-label="amount">
+            </div>
 
-            <button type="submit">Add record</button>
-            <button type="submit" formaction="{{path}}/result">Calculate</button>
+            <div class="input-group mb-2">
+                <span class="input-group-text">Category</span>
+                <input name="category" type="text" class="form-control" placeholder="category" aria-label="category">
+            </div>
+
+            <div class="input-group	mb-2">
+                <span class="input-group-text">Sharers</span>
+                <input name="sharers" type="text" class="form-control" placeholder="use `space` as delimiter" aria-label="Sharers">
+            </div>
+
+            <div class="input-group	mb-2">
+                <button type="submit" class="btn btn-primary">Add record</button>
+            </div>
         </form>
     </div>
-    <hr>
-    <div class="remove_container">
-        <form action="{{path}}/remove">
-            Remove record with id:
-            <input type="text" name="_id">
-            <button type="submit" >remove</button>
-        </form>
+</div>
 
-        <table class="table">
-            <tr class="table_header">
-               <td>id</td>
-               <td>payer</td>
-               <td>amount</td>
-               <td>category</td>
-               <td>sharers</td>
-            </tr>
-            {% for rec in records %}
+
+<div class="container">
+    <table class="table text-center align-middle">
+        <thead>
             <tr>
-                <td>{{rec.get('_id', '')}}</td>
+                <th scope="col">#</th>
+                <th scope="col">payer</th>
+                <th scope="col">amount</th>
+                <th scope="col">category</th>
+                <th scope="col">sharers</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for num, rec in records %}
+            <tr>
+                <th scope="row">{{num}}</th>
                 <td>{{rec.get('payer', '')}}</td>
                 <td>{{rec.get('amount', '')}}</td>
                 <td>{{rec.get('category', '')}}</td>
                 <td>{{', '.join(rec.get('sharers', ''))}}</td>
+                <td>
+                    <form>
+                        <button formaction="{{home}}/{{collection}}/remove" name="_id" value="{{rec.get('_id', '')}}" type="submit" class="btn btn-danger">x</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
-
-        </table>
-    </div>
-</body>
-</html>
+        </tbody>
+    </table>
+</div>

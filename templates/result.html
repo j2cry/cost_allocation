@@ -1,74 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Cost allocation service</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/style.css')}}">
-</head>
-<body>
-    <h3>How to read the table</h3>
-    <p>Find the name of the debtor in the row, in the column to whom he owes.</p>
-    <table class="table">
-        <tr class="table_header">
-            <td></td>
+<h3 class="mt-3">How to read the table</h3>
+<p>Find the name of the debtor in the row, in the column to whom he owes.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"></th>
             {% for column in _debts.columns %}
-            <td>{{column}}</td>
+            <th scope="col">{{column}}</th>
             {% endfor %}
         </tr>
+    </thead>
+
+    <tbody>
         {% for index, row in _debts.iterrows() %}
         <tr>
-            <td class="table_header">{{index}}</td>
+            <th scope="row">{{index}}</th>
             {% for value in row.values %}
-            <td>{{ value }}</td>
+            <td>{{value}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
-    </table>
-    <hr>
-    <form>
-        Get some statistics for
-        <input type="text" name="person">
-        <button type="submit">Get</button>
-    </form>
+    </tbody>
+</table>
 
-    <div class="statistics">
-        {% if payments is not none %}
-        <div>
-            Personal payments
-            <table class="table">
+<form class="input-group mt-4 mb-2">
+    <button class="btn btn-outline-success" type="submit">Get</button>
+    <span class="input-group-text">statistics for</span>
+    <input name="person" type="text" class="form-control" placeholder="name" aria-label="Person">
+</form>
+
+
+<div class="row text-center">
+    {% if payments is not none %}
+    <div class="col-sm">
+        <h3 class="mt-3">{{person}}'s personal payments</h3>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td></td>
-                    <td class="table_header">{{payments.name}}</td>
+                    <th scope="col"></th>
+                    <th scope="col">{{payments.name}}</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for index, value in payments.items() %}
                 <tr>
-                    <td class="table_header">{{index}}</td>
+                    <th scope="row">{{index}}</th>
                     <td>{{value}}</td>
                 </tr>
                 {% endfor %}
-            </table>
-        </div>
-        {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 
-        {% if expenses is not none %}
-        <div>
-            Personal expenses
-            <table class="table">
+    {% if expenses is not none %}
+    <div class="col-sm">
+        <h3 class="mt-3">{{person}}'s personal expenses</h3>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td></td>
-                    <td class="table_header">{{expenses.name}}</td>
+                    <th scope="col"></th>
+                    <th scope="col">{{expenses.name}}</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for index, value in expenses.items() %}
                 <tr>
-                    <td class="table_header">{{index}}</td>
+                    <th scope="row">{{index}}</th>
                     <td>{{value}}</td>
                 </tr>
                 {% endfor %}
-            </table>
-        </div>
-        {% endif %}
+            </tbody>
+        </table>
+
     </div>
-
-
-</body>
-</html>
+    {% endif %}
+</div>

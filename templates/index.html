@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Cost allocation service</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/style.css')}}">
-</head>
-<body>
-    <h2>Type the name of your trip notebook</h2>
-    <form method="post">
-        <input type="text" name="collection">
-        <button type="submit">Proceed</button>
-    </form>
-</body>
-</html>
+<p class="mt-3">Enter the name of your payment notebook</p>
+<form class="input-group input-group-lg" method="post">
+    <button class="btn btn-outline-success" type="submit">Load</button>
+    <input name="collection" class="form-control" type="text" placeholder="notebook name" aria-label="Load">
+</form>
