@@ -9,8 +9,10 @@ I. In two docker containers
 
 II. In a single docker container
     1. Uncomment the required code block in the dockerfile
-    2. In the project directory, run the `docker build -t cost_service .` command
-    3. Launch the container using the command `docker run -dp 80:8080 cost_service`
+    2. In the file `settings.py` specify the IP address of the container with the database as `localhost`,
+        specify the port (variable `MONGO_SERVER`)
+    3. In the project directory, run the `docker build -t cost_service .` command
+    4. Launch the container using the command `docker run -dp 80:8080 cost_service`
 
 
 
@@ -25,8 +27,10 @@ I. В двух docker-контейнерах
 
 II. В одном docker-контейнере
     1. Раскомментировать необходимый блок кода в dockerfile
-    2. В каталоге проекта выполнить команду `docker build -t cost_service .`
-    3. Запустить контейнер c помощью команды `docker run -dp 80:8080 cost_service`
+    2. В файле `settings.py` указать IP-адрес контейнера с базой данных как `localhost`,
+        указать порт (переменная `MONGO_SERVER`)
+    3. В каталоге проекта выполнить команду `docker build -t cost_service .`
+    4. Запустить контейнер c помощью команды `docker run -dp 80:8080 cost_service`
 
 
 

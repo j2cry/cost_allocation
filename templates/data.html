@@ -23,6 +23,14 @@
 
             <div class="input-group	mb-2">
                 <button type="submit" class="btn btn-primary">Add record</button>
+                <div class="input-group-text">
+                    {% if forced %}
+                    <input name="forced" value="True" class="form-check-input mt-0" type="checkbox" aria-label="Checkbox for button" checked>
+                    {% else %}
+                    <input name="forced" value="True" class="form-check-input mt-0" type="checkbox" aria-label="Checkbox for button">
+                    {% endif %}
+                </div>
+                <span class="input-group-text">Allow duplicates</span>
             </div>
         </form>
     </div>
