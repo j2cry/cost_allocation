@@ -6,7 +6,7 @@ import settings
 app = Flask(__name__)
 
 
-@app.route(f'{settings.SERVICE_PATH}', methods=['GET', 'POST'])
+@app.route(f'{settings.SERVICE_PATH if settings.SERVICE_PATH else "/"}', methods=['GET', 'POST'])
 def debts_index():
     if collection := request.form.get('collection', ''):
         return redirect(f'{settings.SERVICE_PATH}/{collection}')

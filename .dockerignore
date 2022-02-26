@@ -5,3 +5,4 @@ __pycache__/
 venv/
 dockerfile
 .dockerignore
+cost_image.tar

@@ -17,9 +17,6 @@ services:
       - traefik.http.routers.cost-allocation.rule=PathPrefix(`/cost`)
     networks:
       - cost-net
-      - revproxy
 
 networks:
-  revproxy:
-    external: true
   cost-net:
