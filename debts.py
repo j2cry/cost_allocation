@@ -61,7 +61,7 @@ class Debts:
             expenses[record.category if record.category else '---'] += record.amount / len(record.sharers)
             categories.add(record.category)
         expenses = pd.Series(expenses, name=sharer, dtype=np.float)
-        summary = pd.Series(expenses.sum(axis=0), index=['ИТОГО'], name=sharer)
+        summary = pd.Series(expenses.sum(axis=0), index=['Total'], name=sharer)
         return round(pd.concat([expenses, summary]), 2)
 
     def get_payments(self, payer: str) -> pd.Series:
@@ -74,7 +74,7 @@ class Debts:
             payments[record.category if record.category else '---'] += record.amount
             categories.add(record.category)
         payments = pd.Series(payments, name=payer, dtype=np.float)
-        summary = pd.Series(payments.sum(axis=0), index=['ИТОГО'], name=payer)
+        summary = pd.Series(payments.sum(axis=0), index=['Total'], name=payer)
         return round(pd.concat([payments, summary]), 2)
 
     def get_all(self):
