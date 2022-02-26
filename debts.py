@@ -1,3 +1,5 @@
+import numpy as np
+
 import bson.errors
 import settings
 import pandas as pd
@@ -35,7 +37,7 @@ class Debts:
         """ Add record to database. Forced adding can duplicate documents in database """
         if not forced and (self.__collection.count_documents(_json) > 0):
             return False
-        self.__collection.insert(_json)
+        self.__collection.insert_one(_json)
         return True
 
     def remove(self, _id):
@@ -51,7 +53,6 @@ class Debts:
 
     def get_expenses(self, sharer: str) -> pd.Series:
         """ Get personal expenses aggregated by categories, calculate sum and return as pandas.Series """
-        # expenses = pd.DataFrame()
         expenses = defaultdict(float)
         records = self.__collection.find({'sharers': sharer}, {'_id': 0})
         categories = set()
@@ -59,8 +60,9 @@ class Debts:
             record = self.__parse_record(record)
             expenses[record.category if record.category else '---'] += record.amount / len(record.sharers)
             categories.add(record.category)
-        expenses = pd.Series(expenses, name=sharer)
-        return round(expenses.append(pd.Series(expenses.sum(axis=0), index=['ИТОГО'], name=sharer)), 2)
+        expenses = pd.Series(expenses, name=sharer, dtype=np.float)
+        summary = pd.Series(expenses.sum(axis=0), index=['ИТОГО'], name=sharer)
+        return round(pd.concat([expenses, summary]), 2)
 
     def get_payments(self, payer: str) -> pd.Series:
         """ Get all payments for `payer` aggregated by categories, calculate sum and return as pandas.Series """
@@ -71,8 +73,9 @@ class Debts:
             record = self.__parse_record(record)
             payments[record.category if record.category else '---'] += record.amount
             categories.add(record.category)
-        payments = pd.Series(payments, name=payer)
-        return round(payments.append(pd.Series(payments.sum(axis=0), index=['ИТОГО'], name=payer)), 2)
+        payments = pd.Series(payments, name=payer, dtype=np.float)
+        summary = pd.Series(payments.sum(axis=0), index=['ИТОГО'], name=payer)
+        return round(pd.concat([payments, summary]), 2)
 
     def get_all(self):
         """ Return list with all records from database """

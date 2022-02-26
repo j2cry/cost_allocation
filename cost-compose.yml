@@ -1,0 +1,25 @@
+version: "3"
+services:
+  mongo-cost:
+    image: mongo:5.0.6
+    container_name: mongo_data
+    hostname: mongo_data
+    networks:
+      - cost-net
+
+  cost-allocation:
+    image: cost_image
+    container_name: cost_app
+    expose:
+      - 8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cost-allocation.rule=PathPrefix(`/cost`)
+    networks:
+      - cost-net
+      - revproxy
+
+networks:
+  revproxy:
+    external: true
+  cost-net:
