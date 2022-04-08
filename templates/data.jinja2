@@ -1,0 +1,32 @@
+{#<div class="p-1 sticky-top under-nav">#}
+<div class="p-1">
+    <label for="sharersList"></label>
+    <textarea id="sharersList" class="form-control" rows="1"></textarea>
+</div>
+
+<table class="table mt-3">
+    <thead>
+        <tr class="text-center">
+            <th>#</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dataTable">
+    </tbody>
+</table>
+<div id="sharersPopup" hidden></div>
+<div id="rowPopup" hidden>
+    <div>
+        <button id="removeRowBtn" class="btn btn-sm btn-danger">remove</button>
+    </div>
+</div>
+
+
+<script>
+    let rowTemplateHTML = {{ params["row_template"]|tojson|safe }};
+    let sharerHTML = {{ params["sharer_template"]|tojson|safe }};
+    let notebook = {{ notebook }};
+</script>
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>

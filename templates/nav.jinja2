@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ params['home_url'] }}{{ '/' + notebook if notebook else '' }}">
+            <img class="logo-icon" src="{{ url_for('static', filename='icons/logo1.svg') }}" alt="inTravel">
+        </a>
+        <div class="d-flex flex-grow-1">
+            {% if notebook %}
+            <button id="addRowBtn" class="btn btn-link" aria-current="page">
+                <img class="icon-button" src="{{ url_for('static', filename='icons/add.svg') }}" alt="+">
+            </button>
+            <button id="calcBtn" class="btn btn-link" aria-current="page">
+                <img class="icon-button" src="{{ url_for('static', filename='icons/calc.svg') }}" alt="$">
+            </button>
+            {% endif %}
+            <a class="nav-link" href="{{ params['home_url'] }}/about">
+                <img class="icon-button" src="{{ url_for('static', filename='icons/faq.svg') }}" alt="?">
+            </a>
+            <button id="debugBtn" class="btn btn-link" aria-current="page">
+                <img class="icon-button" src="{{ url_for('static', filename='icons/debug.svg') }}" alt="+">
+            </button>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto align-items-center">
+            </ul>
+            <div class="d-flex">
+                <input id="searchInput" class="form-control me-2" type="search" placeholder="notebook" aria-label="Open">
+                <button id="openNotebookBtn" class="btn btn-outline-success">Open</button>
+            </div>
+        </div>
+    </div>
+</nav>
