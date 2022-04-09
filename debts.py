@@ -37,10 +37,13 @@ class Debts:
             return RecordInfo(payer, amount, sharers, category)
 
     def push(self, _json: dict, forced=False) -> bool:
-        """ Add record to database. Forced adding can duplicate documents in database """
+        """ Add records to database. Forced adding can duplicate documents in database """
         if not forced and (self.__collection.count_documents(_json) > 0):
             return False
-        self.__collection.insert_one(_json)
+        if isinstance(_json, dict):
+            self.__collection.insert_one(_json)
+        elif isinstance(_json, list):
+            self.__collection.insert_many(_json)
         return True
 
     def remove(self, _id):

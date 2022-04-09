@@ -12,7 +12,7 @@ mongo_params = {
     'server': config['MONGO']['server'],
     'database': config['MONGO']['database'],
 }
-DUPLICATES = bool(config['MONGO']['duplicates'])
+FORCE_PUSH = bool(config['MONGO']['duplicates'])
 
 app = Flask(__name__, static_url_path=SERVICE_URL.joinpath('static').as_posix())
 
@@ -54,17 +54,22 @@ def calc(name):
 @app.route(SERVICE_URL.joinpath('api').as_posix(), methods=['POST'])
 def api():
     """ Receive json request, process and send response """
-    print(request.json)
+    # print(request.json)
     # TODO: придумай формат сообщений
     action = request.json.get('action', '')
     name = request.json.get('name', '')
     if not (action and name):
         return {'error': 'bad_request'}
+    debts = Debts(**mongo_params, collection=name)
 
     if action == 'select':
-        debts = Debts(**mongo_params, collection=name)
-        resp = dict(enumerate(debts.get_all(), 1))
+        docs = debts.get_all()
+        for doc in docs:
+            doc['_id'] = str(doc['_id'])
+        resp = dict(enumerate(docs, 1))
     elif action == 'update':
+        docs = request.json['docs']
+        debts.push(docs, FORCE_PUSH)
         resp = {}
     else:
         resp = {}

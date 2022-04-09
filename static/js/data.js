@@ -4,7 +4,7 @@ const sharersPopup = document.getElementById('sharersPopup');
 const rowPopup = document.getElementById('rowPopup');
 
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
 
     window.onclick = (ev) => {
         if (ev.target.name !== 'sharers')
@@ -42,21 +42,12 @@ window.addEventListener('load', () => {
     }
 
     document.getElementById('debugBtn').onclick = async () => {
-        // sendUpdate();
-        let data = {action: 'select', name: 'travel'};
-        const response = await fetch(homeURL + '/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        data = await response.json();
-        console.log(data);
+        sendUpdate();
     }
 
-    // TODO: receive data and fill table
-    applyUpdate({});
+    // receive data and fill table
+    let data = await request({action: 'select', name: notebook});
+    applyUpdate(data);
 })
 
 
@@ -178,6 +169,17 @@ function removeSharer(value, sharer) {
     return value.replaceAll(pat, ' ').trim();
 }
 
+async function request(data) {
+    const response = await fetch(homeURL + '/api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    return await response.json();
+}
+
 function sendUpdate() {
     // collect data to update
     let data = {};
@@ -198,19 +200,21 @@ function sendUpdate() {
     });
     data['remove'] = removeRows;
     // post
+    // TODO: post updates
     console.log(data);
 }
 
 function applyUpdate(data) {
     dataTable.innerHTML = '';
     // load sharers list
+    // TODO: parse updates
+    console.log(data)
     let sharers = ['foo', 'boo', 'bar'];        // debug data
     sharersList.value = sharers.join(' ');
     let count = 20;
     for (let i = 0; i < count; i++) {
         dataTable.append(createRow(rowPopup, sharersPopup, i + 1));
     }
-
     updateSharersPopup(sharers);
     updatePayers(sharers);
 }

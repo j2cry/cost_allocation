@@ -28,6 +28,6 @@
 <script>
     let rowTemplateHTML = {{ params["row_template"]|tojson|safe }};
     let sharerHTML = {{ params["sharer_template"]|tojson|safe }};
-    let notebook = {{ notebook }};
+    let notebook = '{{ notebook }}';
 </script>
 <script src="{{ url_for('static', filename='js/data.js') }}"></script>
