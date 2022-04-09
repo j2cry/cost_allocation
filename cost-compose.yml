@@ -1,22 +1,22 @@
 version: "3"
 services:
-  mongo-cost:
+  mongo-intravel:
     image: mongo:5.0.6
     container_name: mongo_data
     hostname: mongo_data
     networks:
-      - cost-net
+      - intravel-net
 
   cost-allocation:
-    image: cost_image
-    container_name: cost_app
+    image: intravel_image
+    container_name: intravel_app
     expose:
-      - 8080
+      - 21350
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cost-allocation.rule=PathPrefix(`/cost`)
+      - traefik.http.routers.cost-allocation.rule=PathPrefix(`/intravel`)
     networks:
-      - cost-net
+      - intravel-net
 
 networks:
-  cost-net:
+  intravel-net:

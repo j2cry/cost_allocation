@@ -31,7 +31,7 @@ class Debts:
             amount = float(str(_json.get('amount', '')).replace(',', '.'))
         except ValueError:
             amount = 0
-        sharers = _json.get('sharers', None)
+        sharers = _json.get('sharers', '').split(' ')
         purpose = _json.get('purpose', None)
         if payer and amount and sharers:
             return RecordInfo(payer, amount, sharers, purpose)
@@ -52,6 +52,10 @@ class Debts:
         sharers = self.__collection.find_one({'sharers_list': {'$exists': 1}})
         docs = list(self.__collection.find({'sharers_list': {'$exists': 0}}))
         return docs, sharers['sharers_list'] if sharers else []
+
+    def get_sharers(self):
+        sharers = self.__collection.find_one({'sharers_list': {'$exists': 1}})
+        return sharers['sharers_list'] if sharers else []
 
     def update(self, *, docs, sharers):
         """ Add or update records in database """
@@ -83,14 +87,14 @@ class Debts:
     def get_expenses(self, sharer: str) -> pd.Series:
         """ Get personal expenses aggregated by categories, calculate sum and return as pandas.Series """
         expenses = defaultdict(float)
-        records = self.__collection.find({'sharers': sharer}, {'_id': 0})
+        records = self.__collection.find({'sharers': {'$regex': sharer}}, {'_id': 0})
         categories = set()
         for record in records:
             record = self.__parse_record(record)
             expenses[record.purpose if record.purpose else '---'] += record.amount / len(record.sharers)
             categories.add(record.purpose)
-        expenses = pd.Series(expenses, name=sharer, dtype=np.float)
-        summary = pd.Series(expenses.sum(axis=0), index=['Total'], name=sharer)
+        expenses = pd.Series(expenses, name='expenses', dtype=np.float)
+        summary = pd.Series(expenses.sum(axis=0), index=['Total'], name='expenses')
         return round(pd.concat([expenses, summary]), 2)
 
     def get_payments(self, payer: str) -> pd.Series:
@@ -102,14 +106,14 @@ class Debts:
             record = self.__parse_record(record)
             payments[record.purpose if record.purpose else '---'] += record.amount
             categories.add(record.purpose)
-        payments = pd.Series(payments, name=payer, dtype=np.float)
-        summary = pd.Series(payments.sum(axis=0), index=['Total'], name=payer)
+        payments = pd.Series(payments, name='payments', dtype=np.float)
+        summary = pd.Series(payments.sum(axis=0), index=['Total'], name='payments')
         return round(pd.concat([payments, summary]), 2)
 
-    def get_debts(self) -> pd.DataFrame:
+    def get_debts(self, as_dict=True) -> pd.DataFrame:
         """ Calculate mutual debts. Returns mutual debts as pandas.DataFrame """
         mutual_debts = pd.DataFrame()
-        for record in self.__collection.find():       # iterate through collection
+        for record in self.__collection.find({'sharers_list': {'$exists': 0}}):       # iterate through collection
             record = self.__parse_record(record)
             if not record:
                 continue        # drop broken records
@@ -134,4 +138,4 @@ class Debts:
         mutual_debts.dropna(axis=1, how='all', inplace=True)
         mutual_debts.fillna(0, inplace=True)
 
-        return round(mutual_debts, 2)
+        return round(mutual_debts, 2).to_dict() if as_dict else round(mutual_debts, 2)

@@ -180,17 +180,6 @@ function removeSharer(value, sharer) {
     return value.replaceAll(pat, ' ').trim();
 }
 
-async function request(data) {
-    const response = await fetch(homeURL + '/api', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-    return await response.json();
-}
-
 async function sendUpdate() {
     // collect data to update
     const sharers = getSharers(sharersList.value);

@@ -1,5 +1,47 @@
-Result UI
+<table class="table mt-1 text-center common-table">
+    <thead>
+        <tr class="">
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for creditor, debts in common.items() %}
+        {% for debtor, amount in debts.items() %}
+            {% if amount %}
+            <tr>
+                <td class="py-1">{{ debtor }}</td>
+                <td class="py-1">{{ creditor }}</td>
+                <td class="py-1">{{ amount }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="input-group mt-5">
+    <label for="personalCalcFor" class="input-group-text personal-label"></label>
+    <select id="personalCalcFor" class="form-select" aria-label="Personal calc">
+    {% for sharer in sharers %}
+        <option>{{ sharer }}</option>
+    {% endfor %}
+    </select>
+</div>
+<table class="table mt-1 text-center personal-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="personalTable">
+    </tbody>
+</table>
 
 <script>
     let notebook = '{{ notebook }}';
 </script>
+<script src="{{ url_for('static', filename='js/calc.js') }}"></script>

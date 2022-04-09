@@ -25,24 +25,43 @@ label[for=sharersList]::after {
     content: 'Available sharers:';
 }
 
-table th:nth-child(2)::after {
+.data-table th:nth-child(2)::after {
     content: 'purpose';
 }
-table th:nth-child(3)::after {
+.data-table th:nth-child(3)::after {
     content: 'amount';
 }
-table th:nth-child(4)::after {
+.data-table th:nth-child(4)::after {
     content: 'payer';
 }
-table th:nth-child(5)::after {
+.data-table th:nth-child(5)::after {
     content: 'sharers';
 }
-table th,td:nth-child(3) {
+.data-table th,td:nth-child(3) {
     max-width: 5em;
 }
-/*table textarea,input,select {*/
-/*    width: 30%;*/
-/*}*/
+
+.common-table th:first-child::after {
+    content: 'debtor';
+}
+.common-table th:nth-child(2)::after {
+    content: 'creditor';
+}
+.common-table th:nth-child(3)::after {
+    content: 'amount';
+}
+.personal-label::after {
+    content: 'Personal calculations for';
+}
+.personal-table th:first-child::after {
+    content: 'purpose'
+}
+.personal-table th:nth-child(2)::after {
+    content: 'expenses';
+}
+.personal-table th:nth-child(3)::after {
+    content: 'payments';
+}
 
 /* popups */
 #sharersPopup {

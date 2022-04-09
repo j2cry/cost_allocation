@@ -1,5 +1,5 @@
 [URLS]
-service = travel
+service = intravel
 port = 21350
 
 [MONGO]

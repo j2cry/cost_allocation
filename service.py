@@ -1,8 +1,10 @@
+import pandas as pd
 from flask import Flask, render_template, request
 from waitress import serve
 import configparser
 import pathlib
 from debts import Debts
+import json
 
 
 config = configparser.ConfigParser()
@@ -47,22 +49,24 @@ def notebook(name):
 @app.route(SERVICE_URL.joinpath('<name>', 'calc').as_posix())
 def calc(name):
     """ Calculations page """
-    sharers = ['foo', 'boo', 'bar']
-    return render_page('calc.jinja2', notebook=name, sharers=sharers)
-
-
-@app.route(SERVICE_URL.joinpath('<name>', 'clear').as_posix())
-def clear(name):
     debts = Debts(**mongo_params, collection=name)
-    debts.clear()
-    return 'notebook cleared'
+    sharers = debts.get_sharers()
+    common = debts.get_debts()
+    return render_page('calc.jinja2', notebook=name, sharers=sharers, common=common)
+
+
+# @app.route(SERVICE_URL.joinpath('<name>', 'clear').as_posix())
+# def clear(name):
+#     debts = Debts(**mongo_params, collection=name)
+#     debts.clear()
+#     return 'notebook cleared'
 
 
 @app.route(SERVICE_URL.joinpath('api').as_posix(), methods=['POST'])
 def api():
     """ Receive json request, process and send response """
-    action = request.json.pop('action', '')
-    name = request.json.pop('name', '')
+    action = request.json.get('action', '')
+    name = request.json.get('name', '')
     if not (action and name):
         return {'error': 'bad_request'}
     debts = Debts(**mongo_params, collection=name)
@@ -77,6 +81,12 @@ def api():
         debts.remove(request.json['remove'])
         inserted_ids = debts.update(docs=request.json['docs'], sharers=request.json['sharers'])
         resp = {'ids': inserted_ids}
+    elif action == 'calc':
+        person = request.json.get('person')
+        expenses = debts.get_expenses(person)
+        payments = debts.get_payments(person)
+        resp = pd.concat([expenses, payments], axis=1).fillna(0).T.to_dict()
+        print(resp)
     else:
         resp = {}
     return resp
