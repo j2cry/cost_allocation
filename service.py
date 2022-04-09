@@ -22,7 +22,8 @@ def render_page(content_template=None, **kwargs):
     page_params = {
         'home_url': SERVICE_URL.as_posix(),
         'row_template': render_template('data_row.jinja2'),
-        'sharer_template': render_template('sharer.jinja2')
+        'sharer_template': render_template('sharer.jinja2'),
+        'debug': config['URLS']['debug']
     }
     return render_template('index.jinja2', content=content_template, params=page_params, **kwargs)
 

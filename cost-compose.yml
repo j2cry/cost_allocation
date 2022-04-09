@@ -12,6 +12,8 @@ services:
     container_name: intravel_app
     expose:
       - 21350
+    volumes:
+      - /intravel/conf.d:/intravel/conf.d:ro
     labels:
       - traefik.enable=true
       - traefik.http.routers.cost-allocation.rule=PathPrefix(`/intravel`)

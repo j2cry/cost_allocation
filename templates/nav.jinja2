@@ -18,9 +18,11 @@
             <a class="nav-link" href="{{ params['home_url'] }}/about">
                 <img class="icon-button" src="{{ url_for('static', filename='icons/faq.svg') }}" alt="?">
             </a>
+            {% if params['debug'] %}
             <button id="debugBtn" class="btn btn-link" aria-current="page">
                 <img class="icon-button" src="{{ url_for('static', filename='icons/debug.svg') }}" alt="+">
             </button>
+            {% endif %}
         </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"

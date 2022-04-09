@@ -205,7 +205,6 @@ async function sendUpdate() {
         remove: removeRows,
         sharers: sharers,
     }
-    console.log(data)
     // post updates
     const response = await request(data);
     let idCounter = 0;
@@ -214,11 +213,9 @@ async function sendUpdate() {
         if (!rowElement.getAttribute('data-id') && response['ids'])
             rowElement.setAttribute('data-id', response['ids'][idCounter++]);
     });
-    console.log(response)
 }
 
 function applyUpdate(data) {
-    console.log(data)
     dataTable.innerHTML = '';
     // load sharers list
     sharersList.value = data['sharers'].join(' ');

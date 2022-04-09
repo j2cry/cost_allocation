@@ -1,6 +1,7 @@
 [URLS]
 service = intravel
 port = 21350
+debug = 1
 
 [MONGO]
 server = mongodb://localhost:27017/
