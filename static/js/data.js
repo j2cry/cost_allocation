@@ -18,14 +18,14 @@ window.addEventListener('load', () => {
 
     sharersList.onchange = (ev) => {
         // on sharers list changed
-        let pattern = /[\s~!@#$%^&*()+=\[\]{};:'"\\|/?,.<>]+/;
-        let sharers = ev.target.value.replaceAll(new RegExp(pattern, 'g'), ' ').trim().split(' ');
+        const sharers = getSharers(ev.target.value);
         if (new Set(sharers).size !== sharers.length) {
             // TODO: beautiful notification
             alert('Duplicates are not allowed in sharers list!');
             return
         }
         updateSharersPopup(sharers);
+        updatePayers(sharers);
     }
 
     document.getElementById('addRowBtn').onclick = () => {
@@ -41,8 +41,18 @@ window.addEventListener('load', () => {
         window.location.href = homeURL + '/' + notebook + '/calc';
     }
 
-    document.getElementById('debugBtn').onclick = () => {
-        sendUpdate();
+    document.getElementById('debugBtn').onclick = async () => {
+        // sendUpdate();
+        let data = {action: 'select', name: 'travel'};
+        const response = await fetch(homeURL + '/api', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        data = await response.json();
+        console.log(data);
     }
 
     // TODO: receive data and fill table
@@ -51,6 +61,11 @@ window.addEventListener('load', () => {
 
 
 /* Functions */
+function getSharers(value) {
+    const pattern = /[\s~!@#$%^&*()+=\[\]{};:'"\\|/?,.<>]+/;
+    return value.replaceAll(new RegExp(pattern, 'g'), ' ').trim().split(' ');
+}
+
 function updateSharersPopup(list) {
     sharersPopup.innerHTML = '';
     list.forEach((value) => {
@@ -74,12 +89,40 @@ function updateSharersPopup(list) {
     })
 }
 
+function updatePayers(list) {
+    // remove
+    dataTable.querySelectorAll('[name=payer] option').forEach((element) => {
+        if (!list.includes(element.value))
+            element.remove();
+    });
+    // append
+    list.forEach((val) => {
+        dataTable.querySelectorAll('[name=payer]').forEach((element) => {
+            const array = Array.from(element.options, (v, k) => { return v.innerText });
+            if (!array.includes(val)) {
+                const opt = document.createElement('option');
+                opt.innerText = val;
+                element.append(opt);
+            }
+        });
+    });
+}
+
 function createRow(rowPopup, sharersPopup, rowID) {
     // create row with given popups
     let rowElement = document.createElement('tr');
     rowElement.setAttribute('data-id', rowID ? rowID : '')
     rowElement.innerHTML = rowTemplateHTML;
-    let sharersInput = rowElement.querySelector('[name=sharers]');
+    const payerInput = rowElement.querySelector('[name=payer]');
+    const sharersInput = rowElement.querySelector('[name=sharers]');
+    // fill payer options
+    const sharers = getSharers(sharersList.value);
+    sharers.forEach((val) => {
+        const opt = document.createElement('option');
+        opt.innerText = val;
+        payerInput.append(opt);
+    });
+
     // init and show row context menu
     rowElement.oncontextmenu = (ev) => {
         ev.preventDefault();
@@ -169,4 +212,5 @@ function applyUpdate(data) {
     }
 
     updateSharersPopup(sharers);
+    updatePayers(sharers);
 }

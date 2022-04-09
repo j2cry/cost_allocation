@@ -1,7 +1,6 @@
 import numpy as np
 
 import bson.errors
-import settings
 import pandas as pd
 from pymongo import MongoClient
 from collections import namedtuple, defaultdict
@@ -13,12 +12,16 @@ RecordInfo = namedtuple('RecordInfo', 'payer amount sharers category')
 class Debts:
     """ Class for operating with debts database """
     def __init__(self, **kwargs):
-        settings.MONGO_COLLECTION = kwargs.get('collection', settings.MONGO_COLLECTION)
-
+        server = kwargs.get('server', None)
+        database = kwargs.get('database', None)
+        collection = kwargs.get('collection', None)
+        # validation
+        if not (server and database and collection):
+            raise ValueError('`server`, `database` and `collection` are non-zero parameters')
         # connect to database
-        client = MongoClient(settings.MONGO_SERVER)
-        db = client[settings.MONGO_DATABASE]
-        self.__collection = db[settings.MONGO_COLLECTION]
+        client = MongoClient(server)
+        db = client[database]
+        self.__collection = db[collection]
 
     @staticmethod
     def __parse_record(_json: dict):

@@ -2,13 +2,17 @@ from flask import Flask, render_template, request, redirect
 from waitress import serve
 import configparser
 import pathlib
+from debts import Debts
 
 
 config = configparser.ConfigParser()
 config.read('conf.d/default.cnf')
-
 SERVICE_URL = pathlib.Path('/', config['URLS']['service'])
-
+mongo_params = {
+    'server': config['MONGO']['server'],
+    'database': config['MONGO']['database'],
+}
+DUPLICATES = bool(config['MONGO']['duplicates'])
 
 app = Flask(__name__, static_url_path=SERVICE_URL.joinpath('static').as_posix())
 
@@ -36,24 +40,36 @@ def about():
 
 @app.route(SERVICE_URL.joinpath('<name>').as_posix())
 def notebook(name):
+    """ Data editor page """
     return render_page('data.jinja2', notebook=name)
 
 
 @app.route(SERVICE_URL.joinpath('<name>', 'calc').as_posix())
 def calc(name):
+    """ Calculations page """
     sharers = ['foo', 'boo', 'bar']
     return render_page('calc.jinja2', notebook=name, sharers=sharers)
 
 
-# @app.route(f'{settings.SERVICE_PATH if settings.SERVICE_PATH else "/"}', methods=['GET', 'POST'])
-# def debts_index():
-#     if collection := request.form.get('collection', ''):
-#         return redirect(f'{settings.SERVICE_PATH}/{collection}')
-#     params = {'home': settings.SERVICE_PATH,
-#               'collection': collection if collection else settings.MONGO_COLLECTION}
-#     return render_template('index.jinja2', page='index.html', **params)
-#
-#
+@app.route(SERVICE_URL.joinpath('api').as_posix(), methods=['POST'])
+def api():
+    """ Receive json request, process and send response """
+    print(request.json)
+    # TODO: придумай формат сообщений
+    action = request.json.get('action', '')
+    name = request.json.get('name', '')
+    if not (action and name):
+        return {'error': 'bad_request'}
+
+    if action == 'select':
+        debts = Debts(**mongo_params, collection=name)
+        resp = dict(enumerate(debts.get_all(), 1))
+    elif action == 'update':
+        resp = {}
+    else:
+        resp = {}
+    return resp
+
 # @app.route(f'{settings.SERVICE_PATH}/<collection>', methods=['POST', 'GET'])
 # def debts_service(collection):
 #     """ Show HTML interface

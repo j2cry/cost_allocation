@@ -1,3 +1,8 @@
 [URLS]
 service = travel
 port = 21350
+
+[MONGO]
+server = mongodb://localhost:27017/
+database = in_travel_db
+duplicates = true

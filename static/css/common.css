@@ -32,14 +32,17 @@ table th:nth-child(3)::after {
     content: 'amount';
 }
 table th:nth-child(4)::after {
+    content: 'payer';
+}
+table th:nth-child(5)::after {
     content: 'sharers';
 }
 table th,td:nth-child(3) {
     max-width: 5em;
 }
-table input,select {
-    width: 100%;
-}
+/*table textarea,input,select {*/
+/*    width: 30%;*/
+/*}*/
 
 /* popups */
 #sharersPopup {
