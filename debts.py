@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from collections import namedtuple, defaultdict
 from bson import ObjectId
 
-RecordInfo = namedtuple('RecordInfo', 'payer amount sharers category')
+RecordInfo = namedtuple('RecordInfo', 'payer amount sharers purpose')
 
 
 class Debts:
@@ -32,24 +32,47 @@ class Debts:
         except ValueError:
             amount = 0
         sharers = _json.get('sharers', None)
-        category = _json.get('category', None)
+        purpose = _json.get('purpose', None)
         if payer and amount and sharers:
-            return RecordInfo(payer, amount, sharers, category)
+            return RecordInfo(payer, amount, sharers, purpose)
 
-    def push(self, _json: dict, forced=False) -> bool:
-        """ Add records to database. Forced adding can duplicate documents in database """
-        if not forced and (self.__collection.count_documents(_json) > 0):
-            return False
-        if isinstance(_json, dict):
-            self.__collection.insert_one(_json)
-        elif isinstance(_json, list):
-            self.__collection.insert_many(_json)
-        return True
+    @staticmethod
+    def __convert_id(docs, split=True):
+        """ Convert IDs in docs from str to ObjectID """
+        # split
+        docs_with_id = [d for d in docs if d.get('_id')]
+        docs_without_id = [d for d in docs if not d.get('_id')]
+        # convert ID or clean from empty str ID
+        with_id = list(map(lambda doc: {k: ObjectId(v) if k == '_id' else v for k, v in doc.items()}, docs_with_id))
+        without_id = list(map(lambda doc: {k: v for k, v in doc.items() if k != '_id'}, docs_without_id))
+        return with_id, without_id if split else with_id
 
-    def remove(self, _id):
-        """ Remove record with _id from database """
+    def get_all(self):
+        """ Return list with all records from database and sharers list """
+        sharers = self.__collection.find_one({'sharers_list': {'$exists': 1}})
+        docs = list(self.__collection.find({'sharers_list': {'$exists': 0}}))
+        return docs, sharers['sharers_list'] if sharers else []
+
+    def update(self, *, docs, sharers):
+        """ Add or update records in database """
+        _ids = None
+        if docs:
+            update_docs, push_docs = self.__convert_id(docs)
+            for doc in update_docs:
+                print(doc)
+                self.__collection.update_one({'_id': doc['_id']}, {'$set': doc})
+            if push_docs:
+                insertion = self.__collection.insert_many(push_docs)
+                _ids = [str(_id) for _id in insertion.inserted_ids]
+        if sharers:
+            self.__collection.update_one({'sharers_list': {'$exists': 1}},
+                                         {'$set': {'sharers_list': sharers}}, upsert=True)
+        return _ids
+
+    def remove(self, _ids):
+        """ Remove records with _id from database """
         try:
-            self.__collection.delete_one({'_id': ObjectId(_id)})
+            self.__collection.delete_many({'_id': {'$in': [ObjectId(_id) for _id in _ids]}})
         except bson.errors.InvalidId:
             pass
 
@@ -64,8 +87,8 @@ class Debts:
         categories = set()
         for record in records:
             record = self.__parse_record(record)
-            expenses[record.category if record.category else '---'] += record.amount / len(record.sharers)
-            categories.add(record.category)
+            expenses[record.purpose if record.purpose else '---'] += record.amount / len(record.sharers)
+            categories.add(record.purpose)
         expenses = pd.Series(expenses, name=sharer, dtype=np.float)
         summary = pd.Series(expenses.sum(axis=0), index=['Total'], name=sharer)
         return round(pd.concat([expenses, summary]), 2)
@@ -77,15 +100,11 @@ class Debts:
         categories = set()
         for record in records:
             record = self.__parse_record(record)
-            payments[record.category if record.category else '---'] += record.amount
-            categories.add(record.category)
+            payments[record.purpose if record.purpose else '---'] += record.amount
+            categories.add(record.purpose)
         payments = pd.Series(payments, name=payer, dtype=np.float)
         summary = pd.Series(payments.sum(axis=0), index=['Total'], name=payer)
         return round(pd.concat([payments, summary]), 2)
-
-    def get_all(self):
-        """ Return list with all records from database """
-        return list(self.__collection.find())
 
     def get_debts(self) -> pd.DataFrame:
         """ Calculate mutual debts. Returns mutual debts as pandas.DataFrame """

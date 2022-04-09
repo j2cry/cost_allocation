@@ -5,6 +5,10 @@ const rowPopup = document.getElementById('rowPopup');
 
 
 window.addEventListener('load', async () => {
+    const addRowButton = document.getElementById('addRowBtn');
+    const saveButton = document.getElementById('saveBtn');
+    addRowButton.removeAttribute('disabled');
+    saveButton.removeAttribute('disabled');
 
     window.onclick = (ev) => {
         if (ev.target.name !== 'sharers')
@@ -24,25 +28,30 @@ window.addEventListener('load', async () => {
             alert('Duplicates are not allowed in sharers list!');
             return
         }
-        updateSharersPopup(sharers);
-        updatePayers(sharers);
+        updateSharersPopup();
+        updatePayers();
     }
 
-    document.getElementById('addRowBtn').onclick = () => {
+    addRowButton.onclick = () => {
         // create row
-        let rowElement = createRow(rowPopup, sharersPopup);
+        let rowElement = createRow();
         // add row
         dataTable.append(rowElement);
         window.scrollTo(0, document.body.scrollHeight);
     }
 
+    saveButton.onclick = () => {
+        // save changes
+        sendUpdate();
+    }
+
     document.getElementById('calcBtn').onclick = () => {
-        // TODO: request for results and display in overlay
+        // redir to calculations page
         window.location.href = homeURL + '/' + notebook + '/calc';
     }
 
-    document.getElementById('debugBtn').onclick = async () => {
-        sendUpdate();
+    document.getElementById('debugBtn').onclick = () => {
+        // debug
     }
 
     // receive data and fill table
@@ -57,9 +66,10 @@ function getSharers(value) {
     return value.replaceAll(new RegExp(pattern, 'g'), ' ').trim().split(' ');
 }
 
-function updateSharersPopup(list) {
+function updateSharersPopup() {
+    const sharers = getSharers(sharersList.value)
     sharersPopup.innerHTML = '';
-    list.forEach((value) => {
+    sharers.forEach((value) => {
         // const elemID = value + 'Checkbox';
         const elemID = value;
         const sharer = document.createElement('div');
@@ -74,22 +84,23 @@ function updateSharersPopup(list) {
     document.querySelectorAll('[name=sharers]').forEach((elem) => {
         let oldSharers = elem.value.split(' ');
         oldSharers.forEach((value) => {
-            if (!list.includes(value))
+            if (!sharers.includes(value))
                 elem.value = removeSharer(elem.value, value);
         })
     })
 }
 
-function updatePayers(list) {
+function updatePayers() {
+    const sharers = getSharers(sharersList.value);
     // remove
     dataTable.querySelectorAll('[name=payer] option').forEach((element) => {
-        if (!list.includes(element.value))
+        if (!sharers.includes(element.value))
             element.remove();
     });
     // append
-    list.forEach((val) => {
+    sharers.forEach((val) => {
         dataTable.querySelectorAll('[name=payer]').forEach((element) => {
-            const array = Array.from(element.options, (v, k) => { return v.innerText });
+            const array = Array.from(element.options, (v) => { return v.innerText });
             if (!array.includes(val)) {
                 const opt = document.createElement('option');
                 opt.innerText = val;
@@ -99,7 +110,7 @@ function updatePayers(list) {
     });
 }
 
-function createRow(rowPopup, sharersPopup, rowID) {
+function createRow(rowID) {
     // create row with given popups
     let rowElement = document.createElement('tr');
     rowElement.setAttribute('data-id', rowID ? rowID : '')
@@ -180,41 +191,61 @@ async function request(data) {
     return await response.json();
 }
 
-function sendUpdate() {
+async function sendUpdate() {
     // collect data to update
-    let data = {};
-    let counter = 0;
+    const sharers = getSharers(sharersList.value);
+    let docs = [];
     let removeRows = [];
     dataTable.querySelectorAll('[data-changed],[hidden]').forEach((rowElement) => {
         let rowID = rowElement.getAttribute('data-id');
-        let rowData = {};
         if (rowElement.hidden) {
             if (rowID)
                 removeRows.push(rowID);
             return
         }
+        let rowData = {'_id': rowID ? rowID : ''};
         rowElement.querySelectorAll('input,select,textarea').forEach((inputElement) => {
             rowData[inputElement.name] = inputElement.value;
         });
-        data[rowID ? rowID : 'new' + counter++] = rowData;
+        docs.push(rowData);
     });
-    data['remove'] = removeRows;
-    // post
-    // TODO: post updates
-    console.log(data);
+    const data = {
+        action: 'update',
+        name: notebook,
+        docs: docs,
+        remove: removeRows,
+        sharers: sharers,
+    }
+    console.log(data)
+    // post updates
+    const response = await request(data);
+    let idCounter = 0;
+    dataTable.querySelectorAll('[data-changed]').forEach((rowElement) => {
+        rowElement.removeAttribute('data-changed');
+        if (!rowElement.getAttribute('data-id') && response['ids'])
+            rowElement.setAttribute('data-id', response['ids'][idCounter++]);
+    });
+    console.log(response)
 }
 
 function applyUpdate(data) {
+    console.log(data)
     dataTable.innerHTML = '';
     // load sharers list
-    // TODO: parse updates
-    console.log(data)
-    let sharers = ['foo', 'boo', 'bar'];        // debug data
-    sharersList.value = sharers.join(' ');
-    let count = 20;
-    for (let i = 0; i < count; i++) {
-        dataTable.append(createRow(rowPopup, sharersPopup, i + 1));
-    }
-    updateSharersPopup(sharers);
-    updatePayers(sharers);
+    sharersList.value = data['sharers'].join(' ');
+    // parse docs
+    data['docs'].forEach((doc) => {
+        let rowID = doc['_id'];
+        let rowElement = dataTable.querySelector(`[data-id="${rowID}"]`);
+        if (!rowElement)
+            rowElement = createRow(rowID);
+        rowElement.querySelectorAll('[name]').forEach((inputElement) => {
+            const value = doc[inputElement.name];
+            inputElement.value = value ? value : "";
+        });
+        dataTable.append(rowElement);
+    });
+    // update UI
+    updateSharersPopup();
+    updatePayers();
 }
