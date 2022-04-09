@@ -1,10 +1,9 @@
 import pandas as pd
-from flask import Flask, render_template, request
-from waitress import serve
 import configparser
 import pathlib
+from flask import Flask, render_template, request
+from waitress import serve
 from debts import Debts
-import json
 
 
 config = configparser.ConfigParser()
@@ -90,23 +89,6 @@ def api():
     else:
         resp = {}
     return resp
-
-# @app.route(f'{settings.SERVICE_PATH}/<collection>/result', methods=['GET', 'POST'])
-# def debts_result(collection):
-#     """ Show result
-#         :param collection: mongo database collection name """
-#     debts = Debts(collection=collection)
-#     payments, expenses = None, None
-#     if person := request.args.get('person', ''):
-#         payments = debts.get_payments(person)
-#         expenses = debts.get_expenses(person)
-#     params = {'home': settings.SERVICE_PATH,
-#               'collection': collection,
-#               '_debts': debts.get_debts(),
-#               'person': person,
-#               'payments': payments,
-#               'expenses': expenses}
-#     return render_template('index.jinja2', page='result.html', **params)
 
 
 if __name__ == '__main__':
